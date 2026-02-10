@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valentine Quiz 💘</title>
+  <style>
+    :root{
+      --bg:#fff7fb; --card:#ffffff; --text:#1f1f1f; --muted:#6b6b6b;
+      --pink:#ff4fa1; --blue:#7ad9ff;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, #ffe1ee, transparent),
+        radial-gradient(900px 500px at 80% 90%, #dff3ff, transparent),
+        var(--bg);
+      color:var(--text);
+      padding:18px;
+      overflow-x:hidden;
+    }
+    .card{
+      width:min(760px, 100%);
+      background:var(--card);
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:22px;
+      padding:22px;
+      box-shadow:0 12px 30px rgba(0,0,0,.08);
+      position:relative;
+      overflow:hidden;
+    }
+    .top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      margin-bottom:8px;
+    }
+    h1{ font-size:22px; margin:0 0 6px; }
+    p{ margin:0 0 14px; color:var(--muted); }
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255, 85, 153, .12);
+      border:1px solid rgba(255, 85, 153, .22);
+      color:#c02262;
+      white-space:nowrap;
+    }
+    .progress{
+      height:8px; background:rgba(0,0,0,.06);
+      border-radius:999px; overflow:hidden;
+      margin:14px 0 18px;
+    }
+    .bar{ height:100%; width:0%; background:linear-gradient(90deg,var(--pink),var(--blue)); }
+
+    .q{ font-size:18px; margin:0 0 12px; line-height:1.35; }
+    .answers{ display:grid; gap:10px; }
+    button.choice{
+      width:100%;
+      padding:12px 14px;
+      font-size:16px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.12);
+      background:#fff;
+      cursor:pointer;
+      text-align:left;
+      transition:transform .08s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    button.choice:hover{
+      transform:translateY(-1px);
+      box-shadow:0 10px 18px rgba(0,0,0,.08);
+      border-color:rgba(0,0,0,.22);
+    }
+
+    /* Final question zone */
+    .finalZone{
+      position:relative;
+      height:260px;
+      border-radius:18px;
+      border:1px dashed rgba(0,0,0,.18);
+      background:rgba(255,79,161,.06);
+      display:grid;
+      place-items:center;
+      padding:14px;
+      margin-top:10px;
+      overflow:hidden;
+      touch-action: none; /* helps pointer tracking on mobile */
+    }
+    .finalBtns{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      z-index:2;
+    }
+    .btn{
+      padding:12px 18px;
+      font-size:16px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.14);
+      cursor:pointer;
+      user-select:none;
+      touch-action:manipulation;
+    }
+    .yes{
+      background:var(--pink);
+      color:white;
+      border-color:transparent;
+      box-shadow:0 12px 22px rgba(255,79,161,.25);
+    }
+
+    /* No button */
+    .no{
+      background:white;
+      color:#333;
+      position:absolute;
+      left: 56%;
+      top: 62%;
+      transform: translate(-50%, -50%);
+      will-change: left, top;
+      transition: left 45ms linear, top 45ms linear;
+      z-index:1;
+    }
+
+    .tiny{
+      font-size:12px;
+      color:rgba(0,0,0,.45);
+      margin-top:12px;
+      text-align:center;
+    }
+
+    /* Celebration overlay */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      place-items:center;
+      background:rgba(255,255,255,.65);
+      backdrop-filter: blur(8px);
+      z-index:999;
+      padding:18px;
+    }
+    .celebrateCard{
+      width:min(720px, 100%);
+      background:white;
+      border-radius:24px;
+      border:1px solid rgba(0,0,0,.10);
+      box-shadow:0 18px 50px rgba(0,0,0,.18);
+      padding:26px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .celebrateCard h2{
+      margin:0 0 8px;
+      font-size:28px;
+      letter-spacing:.2px;
+    }
+    .celebrateCard p{
+      margin:0 auto 18px;
+      max-width: 56ch;
+      color:#3a3a3a;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .bigHeart{
+      font-size:54px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 10px 12px rgba(255,79,161,.25));
+      animation: pop 700ms ease both;
+    }
+    @keyframes pop{
+      0%{ transform: scale(.6); opacity:0; }
+      60%{ transform: scale(1.08); opacity:1; }
+      100%{ transform: scale(1); }
+    }
+
+    .ctaRow{
+      display:flex;
+      justify-content:center;
+      margin-top: 6px;
+    }
+    .cta{
+      padding:12px 18px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.12);
+      background: linear-gradient(90deg,var(--pink), #ff7cbf);
+      color:#fff;
+      cursor:pointer;
+      font-size:15px;
+      box-shadow:0 12px 22px rgba(255,79,161,.25);
+    }
+
+    /* Confetti + hearts */
+    .confetti, .hearts{
+      position:absolute; inset:0; pointer-events:none; overflow:hidden;
+    }
+    .confetti i{
+      position:absolute; top:-12px;
+      width:10px; height:14px; opacity:.9; border-radius:2px;
+      animation: fall linear forwards;
+    }
+    @keyframes fall{
+      to{ transform: translateY(120vh) rotate(720deg); }
+    }
+    .hearts span{
+      position:absolute; bottom:-30px;
+      font-size:20px; opacity:.75;
+      animation: floatUp linear forwards;
+      filter: drop-shadow(0 10px 10px rgba(255,79,161,.18));
+    }
+    @keyframes floatUp{
+      to{ transform: translateY(-120vh) translateX(40px) rotate(20deg); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="top">
+      <div>
+        <h1>The Abiha Quiz 💘</h1>
+        <p id="subtitle">Answer these… and don’t overthink it 👀</p>
+      </div>
+      <div class="pill" id="countPill">Question 1/10</div>
+    </div>
+
+    <div class="progress" aria-label="progress">
+      <div class="bar" id="bar"></div>
+    </div>
+
+    <div id="quiz"></div>
+    <div class="tiny"></div>
+  </div>
+
+  <!-- Celebration overlay -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+    <div class="celebrateCard">
+      <div class="confetti" id="confetti"></div>
+      <div class="hearts" id="hearts"></div>
+
+      <div class="bigHeart">💖</div>
+      <h2>YAYYYYY 🥰</h2>
+      <p>
+        You just made my whole day.
+        <br/>Thanks my bee! 💐
+      </p>
+
+      <div class="ctaRow">
+        <button class="cta" id="doneBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const questions = [
+    { q: "Pick a date vibe:", a: ["Dinner + dessert", "Picnic", "Arcade + snacks", "Drive + playlist"] },
+    { q: "Choose a treat:", a: ["Chocolate 🍫", "Ice cream 🍦", "Boba 🧋", "Fries 🍟"] },
+    { q: "You’re more of a…", a: ["Movies person", "Games person", "Food person", "Anything w you person"] },
+    { q: "Love language today?", a: ["Quality time", "Acts of service", "Words of affirmation", "Gifts"] },
+    { q: "Pick a vibe:", a: ["Cute + simple", "Funny", "Extra romantic", "Lowkey but real"] },
+    { q: "Choose one:", a: ["Flowers 💐", "A note ✍️", "A playlist 🎶", "A hoodie 😌"] },
+    { q: "Are you the 'take pics' type?", a: ["Yes ofc", "Sometimes", "Only if you do too", "Nah"] },
+    { q: "Your perfect night ends with:", a: ["Dessert", "Late-night drive", "Watching something", "Talking for hours"] },
+    { q: "Rate my rizz (be nice):", a: ["10/10", "Respectfully 9/10", "8/10 but improving", "I plead the fifth"] },
+    { q: "Last question… will you be my valentine? 💘", final: true }
+  ];
+
+  let idx = 0;
+  const answers = [];
+
+  const quizEl = document.getElementById("quiz");
+  const bar = document.getElementById("bar");
+  const pill = document.getElementById("countPill");
+  const subtitle = document.getElementById("subtitle");
+
+  const overlay = document.getElementById("overlay");
+  const confettiEl = document.getElementById("confetti");
+  const heartsEl = document.getElementById("hearts");
+  const doneBtn = document.getElementById("doneBtn");
+
+  function setProgress() {
+    pill.textContent = `Question ${Math.min(idx+1, questions.length)}/${questions.length}`;
+    bar.style.width = `${(idx / questions.length) * 100}%`;
+  }
+
+  function render() {
+    setProgress();
+    const item = questions[idx];
+    if (!item) return;
+
+    if (!item.final) {
+      subtitle.textContent = "No wrong answers… 👀";
+      quizEl.innerHTML = `
+        <div class="q">${item.q}</div>
+        <div class="answers">
+          ${item.a.map((t, i) => `<button class="choice" data-i="${i}">${t}</button>`).join("")}
+        </div>
+      `;
+      quizEl.querySelectorAll("button.choice").forEach(btn => {
+        btn.addEventListener("click", () => {
+          answers.push(item.a[Number(btn.dataset.i)]);
+          idx++;
+          render();
+        });
+      });
+      return;
+    }
+
+    // Final question
+    subtitle.textContent = "Choose wisely 😇";
+    quizEl.innerHTML = `
+      <div class="q">${item.q}</div>
+      <div class="finalZone" id="zone">
+        <div class="finalBtns">
+          <button class="btn yes" id="yesBtn">Yes 💖</button>
+        </div>
+        <button class="btn no" id="noBtn">No</button>
+      </div>
+    `;
+
+    const zone = document.getElementById("zone");
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+
+    // Make "No" un-selectable even by keyboard focus
+    noBtn.tabIndex = -1;
+    noBtn.addEventListener("click", e => e.preventDefault());
+
+    // --- Magnet-repel physics (hard to trap) ---
+    const state = { x: 0, y: 0, vx: 0, vy: 0, pointerX: null, pointerY: null, running: true };
+
+    function placeNo(){
+      noBtn.style.left = `${state.x}px`;
+      noBtn.style.top  = `${state.y}px`;
+      noBtn.style.transform = `translate(0,0)`;
+    }
+
+    function onPointerMove(clientX, clientY){
+      const z = zone.getBoundingClientRect();
+      state.pointerX = clientX - z.left;
+      state.pointerY = clientY - z.top;
+    }
+
+    zone.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
+    zone.addEventListener("touchmove", (e) => {
+      if (!e.touches || !e.touches[0]) return;
+      onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      e.preventDefault();
+    }, {passive:false});
+
+    noBtn.addEventListener("pointerdown", (e) => {
+      onPointerMove(e.clientX, e.clientY);
+      e.preventDefault();
+    });
+
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+    function len(x,y){ return Math.hypot(x,y) || 0.0001; }
+
+    const SETTINGS = {
+      repelRadius: 170,
+      maxSpeed: 22,
+      minSpeedNearCursor: 8,
+      edgePad: 26,
+      edgeForce: 2.2,
+      repelForce: 3.4,
+      swirlForce: 1.9,
+      damping: 0.90,
+    };
+
+    function initNoPos(){
+      const z = zone.getBoundingClientRect();
+      const bw = noBtn.offsetWidth;
+      const bh = noBtn.offsetHeight;
+      state.x = (z.width * 0.60) - bw/2;
+      state.y = (z.height * 0.62) - bh/2;
+      placeNo();
+    }
+
+    function tick(){
+      if (!state.running) return;
+
+      const z = zone.getBoundingClientRect();
+      const bw = noBtn.offsetWidth;
+      const bh = noBtn.offsetHeight;
+
+      const minX = SETTINGS.edgePad;
+      const minY = SETTINGS.edgePad;
+      const maxX = z.width - bw - SETTINGS.edgePad;
+      const maxY = z.height - bh - SETTINGS.edgePad;
+
+      const cx = state.x + bw/2;
+      const cy = state.y + bh/2;
+
+      // Edge repulsion (push inward near walls)
+      const dL = cx - minX;
+      if (dL < SETTINGS.edgePad*2) state.vx += SETTINGS.edgeForce * (1 - dL/(SETTINGS.edgePad*2));
+
+      const dR = maxX + bw/2 - cx;
+      if (dR < SETTINGS.edgePad*2) state.vx -= SETTINGS.edgeForce * (1 - dR/(SETTINGS.edgePad*2));
+
+      const dT = cy - minY;
+      if (dT < SETTINGS.edgePad*2) state.vy += SETTINGS.edgeForce * (1 - dT/(SETTINGS.edgePad*2));
+
+      const dB = maxY + bh/2 - cy;
+      if (dB < SETTINGS.edgePad*2) state.vy -= SETTINGS.edgeForce * (1 - dB/(SETTINGS.edgePad*2));
+
+      // Cursor repulsion + swirl (prevents pinning)
+      if (state.pointerX != null && state.pointerY != null){
+        const dx = cx - state.pointerX;
+        const dy = cy - state.pointerY;
+        const d = len(dx, dy);
+
+        if (d < SETTINGS.repelRadius){
+          const t = (SETTINGS.repelRadius - d) / SETTINGS.repelRadius; // 0..1
+          const push = SETTINGS.repelForce * (t*t); // ramps up close to cursor
+
+          // push away
+          state.vx += (dx/d) * push;
+          state.vy += (dy/d) * push;
+
+          // swirl sideways so it escapes walls/corners
+          const swirlDir = (dx*dy >= 0) ? 1 : -1;
+          state.vx += (-dy/d) * SETTINGS.swirlForce * t * swirlDir;
+          state.vy += ( dx/d) * SETTINGS.swirlForce * t * swirlDir;
+
+          // guarantee motion when close
+          const speed = len(state.vx, state.vy);
+          if (speed < SETTINGS.minSpeedNearCursor){
+            const boost = SETTINGS.minSpeedNearCursor / speed;
+            state.vx *= boost;
+            state.vy *= boost;
+          }
+        }
+      }
+
+      // tiny randomness so it never perfectly settles
+      state.vx += (Math.random() - 0.5) * 0.06;
+      state.vy += (Math.random() - 0.5) * 0.06;
+
+      // damping
+      state.vx *= SETTINGS.damping;
+      state.vy *= SETTINGS.damping;
+
+      // cap speed
+      const sp = len(state.vx, state.vy);
+      if (sp > SETTINGS.maxSpeed){
+        const s = SETTINGS.maxSpeed / sp;
+        state.vx *= s; state.vy *= s;
+      }
+
+      // update position
+      state.x += state.vx * 6;
+      state.y += state.vy * 6;
+
+      // clamp inside padded bounds
+      state.x = clamp(state.x, minX, maxX);
+      state.y = clamp(state.y, minY, maxY);
+
+      placeNo();
+      requestAnimationFrame(tick);
+    }
+
+    yesBtn.addEventListener("click", () => {
+      bar.style.width = "100%";
+      pill.textContent = "Done";
+      subtitle.textContent = "Locked in 😌";
+      state.running = false;
+      showCelebration();
+    });
+
+    initNoPos();
+    requestAnimationFrame(tick);
+  }
+
+  // --- Celebration effects ---
+  function showCelebration(){
+    overlay.style.display = "grid";
+    spawnConfetti(110);
+    spawnHearts(18);
+  }
+
+  function spawnConfetti(count){
+    confettiEl.innerHTML = "";
+    const colors = ["#ff4fa1", "#ffd166", "#7ad9ff", "#95f2d9", "#cdb4ff", "#ff8fab"];
+    for (let i = 0; i < count; i++){
+      const piece = document.createElement("i");
+      const sizeW = 6 + Math.random()*8;
+      const sizeH = 10 + Math.random()*14;
+      piece.style.width = sizeW + "px";
+      piece.style.height = sizeH + "px";
+      piece.style.left = (Math.random()*100) + "%";
+      piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+      const dur = 2.8 + Math.random()*2.2;
+      const delay = Math.random()*0.6;
+      piece.style.animationDuration = dur + "s";
+      piece.style.animationDelay = delay + "s";
+      confettiEl.appendChild(piece);
+    }
+  }
+
+  function spawnHearts(count){
+    heartsEl.innerHTML = "";
+    const heartChars = ["💗","💖","💘","💞","💕","💓"];
+    for (let i = 0; i < count; i++){
+      const h = document.createElement("span");
+      h.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+      h.style.left = (Math.random()*100) + "%";
+      h.style.fontSize = (16 + Math.random()*18) + "px";
+      const dur = 4 + Math.random()*3;
+      const delay = Math.random()*1.5;
+      h.style.animationDuration = dur + "s";
+      h.style.animationDelay = delay + "s";
+      heartsEl.appendChild(h);
+    }
+  }
+
+  doneBtn.addEventListener("click", () => {
+    overlay.style.display = "none";
+  });
+
+  // Close overlay when clicking outside the card
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.style.display = "none";
+  });
+
+  render();
+</script>
+</body>
+</html>
